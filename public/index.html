@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Reminder Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s,
+                        box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .test-url {
+            word-break: break-all;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Telegram Reminder Test</h1>
+
+        <div class="info">
+            <strong>使用方式：</strong><br>
+            1. 配置你的 <code>.env</code> 文件<br>
+            2. 填写 Telegram Chat ID 和 Bot Token<br>
+            3. 点击下方按钮测试提醒功能
+        </div>
+
+        <div class="form-group">
+            <label for="chatId">Telegram Chat ID</label>
+            <input
+                type="text"
+                id="chatId"
+                placeholder="例如: 123456789"
+                value="your_chat_id_here"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="minutes">提醒时间（分钟）</label>
+            <input
+                type="number"
+                id="minutes"
+                placeholder="例如: 60"
+                value="1"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="content">提醒内容</label>
+            <textarea
+                id="content"
+                rows="2"
+                placeholder="例如: 会议提醒"
+            >测试提醒</textarea>
+        </div>
+
+        <button onclick="createReminder()">✅ 创建提醒</button>
+
+        <div class="results" id="results"></div>
+
+        <div class="info" style="margin-top: 30px;">
+            <strong>测试 URL 示例：</strong><br>
+            http://your-server.action/五分钟的下午茶<br>
+            http://your-server.action/10/30分钟后开会
+        </div>
+    </div>
+
+    <script>
+        async function createReminder() {
+            const chatId = document.getElementById('chatId').value;
+            const minutes = document.getElementById('minutes').value;
+            const content = document.getElementById('content').value;
+
+            if (!chatId || !minutes || !content) {
+                showError('请填写所有字段');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p style="text-align: center; color: #667eea;">⏳ 创建中...</p>';
+
+            try {
+                const url = `/action/${minutes}/${encodeURIComponent(content)}`;
+                const response = await fetch(url + `?chat_id=${chatId}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsDiv.innerHTML = `
+                        <h3 style="color: #4caf50; margin-bottom: 10px;">✅ 成功！</h3>
+                        <p style="margin-bottom: 10px;">${data.message}</p>
+                        <div class="test-url">${JSON.stringify(data)}</div>
+                    `;
+                } else {
+                    throw new Error('创建失败');
+                }
+            } catch (error) {
+                showError('创建失败: ' + error.message);
+            }
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <h3 style="color: #f44336; margin-bottom: 10px;">❌ 错误</h3>
+                <p>${message}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
