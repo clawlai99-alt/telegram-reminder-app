@@ -1,0 +1,8 @@
+{
+  "name": "telegram-reminder-app",
+  "description": "Telegram Reminder App - 自動化提醒系統",
+  "private": false,
+  "auto_init": false,
+  "has_wiki": false,
+  "has_pages": false
+}
